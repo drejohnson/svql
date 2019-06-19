@@ -3,8 +3,8 @@ import map from 'tallbag-map'
 import fromFetch from 'tallbag-from-fetch'
 import catchError from './utils/catchError'
 
-import { normalize, denormalize, mergeEntityCache as merge } from 'gql-cache'
-import { print } from 'graphql'
+// import { normalize, denormalize, mergeEntityCache as merge } from 'gql-cache'
+// import { print } from 'graphql'
 
 export default function createClient(opts, initialOpts = {}) {
   function generateResult({ fetchError, httpError, graphQLErrors, data }) {
@@ -38,7 +38,7 @@ export default function createClient(opts, initialOpts = {}) {
           },
           body: JSON.stringify({
             operationName: operation.operationName,
-            query: print(operation.query),
+            query: operation.query,
             variables: operation.variables
           }),
           ...opts.fetchOptions
@@ -80,16 +80,16 @@ export default function createClient(opts, initialOpts = {}) {
       variables = undefined
     }
 
-    const normalizedResponse = normalize(query, { ...variables }, { data })
+    // const normalizedResponse = normalize(query, { ...variables }, { data })
 
-    // rename to merge
-    cache = merge(cache, normalizedResponse)
+    // // rename to merge
+    // cache = merge(cache, normalizedResponse)
 
-    console.log(cache)
+    // console.log(cache)
 
-    const { stale, response } = denormalize(query, { ...variables }, cache)
+    // const { stale, response } = denormalize(query, { ...variables }, cache)
 
-    return response
+    return data
   }
 
   function hydrate() {
