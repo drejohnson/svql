@@ -14,7 +14,6 @@
     "graphql"
   ],
   "scripts": {
-    "build:esm": "rollup -c rollup.config.esm.js",
     "build": "rollup -c rollup.config.js"
   },
   "peerDependencies": {
