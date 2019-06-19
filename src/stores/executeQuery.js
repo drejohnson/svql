@@ -1,20 +1,22 @@
-import { getContext } from 'svelte'
+// import { getContext } from 'svelte'
 import { writable } from 'svelte/store'
 import pipe from 'callbag-pipe'
 import observe from 'callbag-observe'
-import { setRequest } from './request'
+import setRequest from './request'
 
 import { parse as gql } from 'graphql'
 
-export function executeQuery() {
+function executeQuery() {
   const { subscribe, set } = writable({
     fetching: false
   })
 
   return {
     subscribe,
-    query: async operation => {
-      const client = getContext('client$')
+    // Must pass client to query function, yuck!
+    query: async (client, operation) => {
+      // TODO: must be a way to set context without error
+      // const client = getContext('client$')
       const query = gql(operation.query)
       const requestOperation = setRequest(query, operation.variables)
       set({ fetching: true })
@@ -28,7 +30,6 @@ export function executeQuery() {
             requestOperation.variables,
             data
           )
-          console.log(cache)
           errors
             ? set({
                 fetching: false,
@@ -43,3 +44,5 @@ export function executeQuery() {
     }
   }
 }
+
+export default executeQuery
