@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store'
-import { transformRequest } from '../utils/tranformRequest'
+import transformRequest from '../utils/tranformRequest'
 
-export const setRequest = (query, variables) => {
+const setRequest = (query, variables) => {
   const prev = writable(undefined)
 
   let request
@@ -20,3 +20,5 @@ export const setRequest = (query, variables) => {
 
   return request
 }
+
+export default setRequest

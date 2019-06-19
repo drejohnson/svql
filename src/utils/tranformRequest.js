@@ -1,9 +1,11 @@
-import { getRequestKey } from './keyForQuery'
+import getRequestKey from './keyForQuery'
 
-export function transformRequest(q, v) {
+function transformRequest(q, v) {
   return {
     key: getRequestKey(q, v),
     query: q,
     variables: v || {}
   }
 }
+
+export default transformRequest
