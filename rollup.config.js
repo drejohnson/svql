@@ -27,7 +27,10 @@ const babelOpts = {
 export default [
   {
     input: 'src/index.js',
-    external,
+    external: Object.keys(pkg.dependencies).concat(
+      require('module').builtinModules ||
+        Object.keys(process.binding('natives'))
+    ),
     output: [
       {
         file: pkg.module,
@@ -51,7 +54,8 @@ export default [
         module: true
       }),
       sizeSnapshot()
-    ]
+    ],
+    treeshake: true
   }
 ]
 
