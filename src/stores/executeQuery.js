@@ -4,7 +4,7 @@ import pipe from 'callbag-pipe'
 import observe from 'callbag-observe'
 import setRequest from './request'
 
-// import { parse as gql } from 'graphql'
+import gql from 'graphql-tag'
 
 function executeQuery() {
   const { subscribe, set } = writable({
@@ -17,8 +17,8 @@ function executeQuery() {
     query: async (client, operation) => {
       // TODO: must be a way to set context without error
       // const client = getContext('client$')
-      // const query = gql(operation.query)
-      const requestOperation = setRequest(operation.query, operation.variables)
+      const query = gql(operation.query)
+      const requestOperation = setRequest(query, operation.variables)
       set({ fetching: true })
       const source = client.executeQuery(requestOperation)
       pipe(

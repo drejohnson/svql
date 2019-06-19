@@ -4,7 +4,7 @@ import fromFetch from 'tallbag-from-fetch'
 import catchError from './utils/catchError'
 
 // import { normalize, denormalize, mergeEntityCache as merge } from 'gql-cache'
-// import { print } from 'graphql'
+import { print } from 'graphql'
 
 export default function createClient(opts, initialOpts = {}) {
   function generateResult({ fetchError, httpError, graphQLErrors, data }) {
@@ -29,6 +29,7 @@ export default function createClient(opts, initialOpts = {}) {
 
   function executeQuery(operation) {
     function transport(operation) {
+      const query = print(operation.query)
       return pipe(
         fromFetch(opts.url, {
           method: 'POST',
@@ -38,7 +39,7 @@ export default function createClient(opts, initialOpts = {}) {
           },
           body: JSON.stringify({
             operationName: operation.operationName,
-            query: operation.query,
+            query: query,
             variables: operation.variables
           }),
           ...opts.fetchOptions
