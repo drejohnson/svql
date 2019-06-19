@@ -17,7 +17,7 @@ function executeQuery() {
     query: async (client, operation) => {
       // TODO: must be a way to set context without error
       // const client = getContext('client$')
-      const query = gql(operation.query)
+      // const query = gql(operation.query)
       const requestOperation = setRequest(operation.query, operation.variables)
       set({ fetching: true })
       const source = client.executeQuery(requestOperation)
