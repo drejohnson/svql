@@ -3,12 +3,12 @@ import { writable } from 'svelte/store'
 import pipe from 'callbag-pipe'
 import observe from 'callbag-observe'
 
-export function executeQuery(client) {
+export function executeQuery() {
   const { subscribe, set } = writable({ fetching: false })
 
   return {
     subscribe,
-    query: operation => {
+    query: (client, operation) => {
       // const client = getContext('client')
       set({ fetching: true })
       const source = client.request(operation)
