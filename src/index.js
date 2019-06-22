@@ -1,4 +1,4 @@
-import createClient from './createClient'
-import executeQuery from './stores/executeQuery'
+import { Client } from './client'
+import { executeQuery } from './stores/executeQuery'
 
-export { createClient, executeQuery }
+export { Client, executeQuery }
