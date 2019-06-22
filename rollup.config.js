@@ -6,19 +6,6 @@ import { terser } from 'rollup-plugin-terser'
 import { sizeSnapshot } from 'rollup-plugin-size-snapshot'
 import pkg from './package.json'
 
-const external = [
-  'graphql',
-  'svelte',
-  'svelte/store',
-  'gql-cache',
-  'callbag-pipe',
-  'callbag-observe',
-  'tallbag-map',
-  'tallbag-from-fetch',
-  'shadow-callbag',
-  '@sindresorhus/fnv1a'
-]
-
 const babelOpts = {
   exclude: '**/node_modules/**',
   runtimeHelpers: true
