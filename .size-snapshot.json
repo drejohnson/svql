@@ -1,13 +1,13 @@
 {
   "lib/index.js": {
-    "bundled": 2803,
-    "minified": 2803,
+    "bundled": 2806,
+    "minified": 2806,
     "gzipped": 1203
   },
   "esm/index.js": {
-    "bundled": 2331,
-    "minified": 2331,
-    "gzipped": 1083,
+    "bundled": 2334,
+    "minified": 2334,
+    "gzipped": 1089,
     "treeshaked": {
       "rollup": {
         "code": 184,
