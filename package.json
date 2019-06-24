@@ -1,6 +1,6 @@
 {
   "name": "svelte-gql",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "main": "lib/index.js",
   "module": "esm/index.js",
   "homepage": "https://github.com/drejohnson/svql#readme",
