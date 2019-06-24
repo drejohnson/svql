@@ -1,24 +1,20 @@
-import fromFetch from 'tallbag-from-fetch'
 import pipe from 'callbag-pipe'
 import map from 'tallbag-map'
+import fromFetch from 'tallbag-from-fetch'
+import share from 'tallbag-share'
+import filter from 'tallbag-filter'
+import mergeMap from 'callbag-merge-map'
 import of from 'callbag-of'
-import fnv1a from '@sindresorhus/fnv1a'
-import { extractFiles } from 'extract-files'
+import take from 'tallbag-take'
 import catchError from './utils/tallbags/tallbag-catch-error'
+import { extractFiles } from 'extract-files'
+import fnv1a from '@sindresorhus/fnv1a'
 
-export class Client {
-  constructor(opts) {
-    // validate opts
-    if (!opts.url) {
-      throw new Error('Client: opts.url is required')
-    }
-    this.url = opts.url
-    this.cache = opts.cache || new Map()
-    this.headers = opts.headers || {}
-    this.fetchOptions = opts.fetchOptions || {}
-  }
+export default function createClient(opts) {
+  const { url } = opts
+  const cache = new Map()
 
-  combineResult({ fetchError, httpError, graphQLErrors, data }) {
+  function handleResult({ fetchError, httpError, graphQLErrors, data }) {
     const error = !!(
       (graphQLErrors && graphQLErrors.length > 0) ||
       fetchError ||
@@ -34,13 +30,13 @@ export class Client {
     }
   }
 
-  getFetchOptions(operation) {
+  function getFetchOptions(operation) {
     const fetchOptions = {
       method: 'POST',
       headers: {
-        ...this.headers
+        ...opts.headers
       },
-      ...this.fetchOptions
+      ...opts.fetchOptions
     }
 
     const { clone, files } = extractFiles(operation)
@@ -75,20 +71,24 @@ export class Client {
     return fetchOptions
   }
 
-  request(operation) {
+  function executeQuery(operation) {
+    return executeRequest(operation)
+  }
+
+  function executeFetch(operation) {
     const cacheKey = fnv1a(
-      '' + this.url + JSON.stringify(this.getFetchOptions(operation))
+      '' + url + JSON.stringify(getFetchOptions(operation))
     )
-    if (this.cache.has(cacheKey)) {
-      return pipe(of(this.cache.get(cacheKey)))
+    if (cache.has(cacheKey)) {
+      return pipe(of(cache.get(cacheKey)))
     }
     return pipe(
-      fromFetch(this.url, this.getFetchOptions(operation)),
+      fromFetch(opts.url, getFetchOptions(operation)),
       map(async response => {
         if (!response.ok) {
           const body = await response.text()
           const { status, statusText } = body
-          return this.combineResult({
+          return handleResult({
             httpError: {
               status,
               statusText,
@@ -97,17 +97,18 @@ export class Client {
           })
         } else {
           // OK return data
-          const { errors, data } = await response.json()
-          if (!this.cache.has(cacheKey)) {
-            this.cache.set(
+          const result = await response.json()
+          const { errors, data } = result
+          if (!cache.has(cacheKey)) {
+            cache.set(
               cacheKey,
-              this.combineResult({
+              handleResult({
                 graphQLErrors: errors,
                 data
               })
             )
           }
-          return this.combineResult({
+          return handleResult({
             graphQLErrors: errors,
             data
           })
@@ -115,10 +116,34 @@ export class Client {
       }),
       catchError(error => {
         console.log(err.message)
-        return this.combineResult({
+        return handleResult({
           fetchError: error
         })
       })
     )
   }
+
+  function executeRequest(operation) {
+    const { key } = operation
+    const operations$ = share(of(operation))
+    const operationResults = pipe(
+      operations$,
+      filter(operation => {
+        return operation.key === key
+      }),
+      take(1)
+    )
+    return pipe(
+      operationResults,
+      mergeMap(operation => {
+        return executeFetch(operation)
+      })
+    )
+  }
+
+  function hydrate() {
+    return {}
+  }
+
+  return { executeQuery, hydrate }
 }
