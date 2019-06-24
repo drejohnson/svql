@@ -2,17 +2,21 @@
 import { writable } from 'svelte/store'
 import pipe from 'callbag-pipe'
 import observe from 'callbag-observe'
+import setRequest from './request'
 
-export function executeQuery() {
-  const { subscribe, set } = writable({ fetching: false })
+export default function executeQuery() {
+  const { subscribe, set } = writable({
+    fetching: false
+  })
 
   return {
     subscribe,
-    query: (client, operation) => {
+    query: async (client, query, opts = {}) => {
       // const client = getContext('client')
+      const requestOperation = setRequest(query, opts)
       set({ fetching: true })
-      const source = client.request(operation)
-      return pipe(
+      const source = client.executeQuery(requestOperation)
+      pipe(
         source,
         observe(async response => {
           const { errors, data } = await response
